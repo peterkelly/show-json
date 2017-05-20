@@ -14,8 +14,62 @@
 
 import { table } from "./table";
 
-console.log(table(["id", "name", "age", "occupation"], [
-    [1, "Fred Williams", 37, "Plumber"],
-    [2, "Joe Smith", 40, "Accountant"],
-    [3, "Mary Simpson", 50, "Marketing executive"],
-]));
+const fields = ["id", "name", "age", "occupation.name", "occupation.since"];
+
+const data = [
+    {
+        id: 1,
+        name: "Fred Williams",
+        age: 37,
+        occupation: {
+            name: "Plumber",
+            since: 1996,
+        },
+    },
+    {
+        id: 2,
+        name: "Joe Smith",
+        age: 40,
+        occupation: {
+            name: "Accountant",
+            since: 1998,
+        },
+    },
+    {
+        id: 3,
+        name: "Mary Simpson",
+        age: 50,
+        occupation: {
+            name: "Marketing executive",
+            since: 1989,
+        },
+    },
+];
+
+function getPath(obj: any, path: string) {
+    const components = path.split(".");
+    for (const component of components) {
+        if ((typeof(obj) !== "object") && (obj !== null))
+            return obj;
+        obj = obj[component];
+    }
+    return obj;
+}
+
+function makeRows(fields: string[], data: any[]): any[] {
+    const rows: any[] = [];
+    for (const element of data) {
+        const row: string[] = [];
+        for (const field of fields) {
+            const value = getPath(element, field);
+            if (value != null)
+                row.push(value);
+            else
+                row.push("");
+        }
+        rows.push(row);
+    }
+    return rows;
+}
+
+console.log(table(fields, makeRows(fields, data)));
