@@ -12,10 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { table } from "./table";
+export function leftpad(value: any, length: number): string {
+    value = "" + value;
+    while (value.length < length)
+        value = " " + value;
+    return value;
+}
 
-console.log(table(["id", "name", "age", "occupation"], [
-    [1, "Fred Williams", 37, "Plumber"],
-    [2, "Joe Smith", 40, "Accountant"],
-    [3, "Mary Simpson", 50, "Marketing executive"],
-]));
+export function rightpad(value: any, length: number): string {
+    value = "" + value;
+    while (value.length < length)
+        value = value + " ";
+    return value;
+}
+
+export function arrayFill(array: any[], value: any): any[] {
+    for (let i = 0; i < array.length; i++)
+        array[i] = value;
+    return array;
+}
