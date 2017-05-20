@@ -93,5 +93,5 @@ export function table(colNames: string[], rowsRaw: any[][]): string {
         "\n"
     );
 
-    return output.join("").replace(/\n$/,"");
+    return output.join("").replace(/\n$/, "");
 }
