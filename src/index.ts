@@ -12,45 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// <reference types="node" />
+
+import { readDataFromStream } from "./io";
 import { table } from "./table";
-
-const fields = ["id", "name", "age", "occupation.name", "occupation.since"];
-
-const data = [
-    {
-        id: 1,
-        name: "Fred Williams",
-        age: 37,
-        occupation: {
-            name: "Plumber",
-            since: 1996,
-        },
-    },
-    {
-        id: 2,
-        name: "Joe Smith",
-        age: 40,
-        occupation: {
-            name: "Accountant",
-            since: 1998,
-        },
-    },
-    {
-        id: 3,
-        name: "Mary Simpson",
-        age: 50,
-        occupation: {
-            name: "Marketing executive",
-            since: 1989,
-        },
-    },
-];
+import { isObject } from "./util";
 
 function getPath(obj: any, path: string) {
     const components = path.split(".");
     for (const component of components) {
-        if ((typeof(obj) !== "object") && (obj !== null))
-            return obj;
+        if (!isObject(obj))
+            return;
         obj = obj[component];
     }
     return obj;
@@ -72,4 +44,41 @@ function makeRows(fields: string[], data: any[]): any[] {
     return rows;
 }
 
-console.log(table(fields, makeRows(fields, data)));
+function getAllPaths(roots: any[]): string[] {
+    const paths = new Set<string>();
+    for (const root of roots)
+        recurse(root, "");
+    return Array.from(paths.values()).sort();
+
+    function recurse(obj: any, path: string): void {
+        if (!isObject(obj)) {
+            paths.add(path);
+            return;
+        }
+        for (const key of Object.keys(obj)) {
+            const childPath = (path.length === 0) ? key : (path + "." + key);
+            recurse(obj[key], childPath);
+        }
+    }
+}
+
+function main(): void {
+    readDataFromStream(process.stdin).then(buf => {
+        const data = JSON.parse(buf.toString());
+
+        if (!(data instanceof Array))
+            throw new Error("Expected an array");
+
+        const fields = getAllPaths(data);
+        console.log(table(fields, makeRows(fields, data)));
+    }).catch((error) => {
+        console.error("" + error);
+        process.exit(1);
+    });
+}
+
+// Avoid output truncation
+(<any> process.stdout)._handle.setBlocking(true);
+(<any> process.stderr)._handle.setBlocking(true);
+
+main();

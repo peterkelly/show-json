@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/peterkelly/show-json#readme",
   "devDependencies": {
+    "@types/node": "7.0.21",
     "del": "2.2.2",
     "gulp": "3.9.1",
     "gulp-tslint": "8.0.0",

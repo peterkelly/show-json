@@ -31,3 +31,7 @@ export function arrayFill(array: any[], value: any): any[] {
         array[i] = value;
     return array;
 }
+
+export function isObject(obj: any): boolean {
+    return (typeof(obj) === "object") && (obj !== null);
+}

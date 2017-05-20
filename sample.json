@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "name": "Fred Williams",
+        "age": 37,
+        "occupation": {
+            "name": "Plumber",
+            "since": 1996
+        }
+    },
+    {
+        "id": 2,
+        "name": "Joe Smith",
+        "age": 40,
+        "occupation": {
+            "name": "Accountant",
+            "since": 1998
+        }
+    },
+    {
+        "id": 3,
+        "name": "Mary Simpson",
+        "age": 50,
+        "occupation": {
+            "name": "Marketing executive",
+            "since": 1989
+        }
+    }
+]
