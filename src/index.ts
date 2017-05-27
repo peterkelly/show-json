@@ -62,23 +62,24 @@ function getAllPaths(roots: any[]): string[] {
     }
 }
 
-function main(): void {
-    readDataFromStream(process.stdin).then(buf => {
-        const data = JSON.parse(buf.toString());
+async function main(): Promise<void> {
+    const buf = await readDataFromStream(process.stdin);
+    const data = JSON.parse(buf.toString());
 
-        if (!(data instanceof Array))
-            throw new Error("Expected an array");
+    if (!(data instanceof Array))
+        throw new Error("Expected an array");
 
-        const fields = getAllPaths(data);
-        console.log(table(fields, makeRows(fields, data)));
-    }).catch((error) => {
-        console.error("" + error);
-        process.exit(1);
-    });
+    const fields = getAllPaths(data);
+    console.log(table(fields, makeRows(fields, data)));
 }
 
 // Avoid output truncation
 (<any> process.stdout)._handle.setBlocking(true);
 (<any> process.stderr)._handle.setBlocking(true);
 
-main();
+main().then(() => {
+    process.exit(0);
+}).catch((error) => {
+    console.error("" + error);
+    process.exit(1);
+});
