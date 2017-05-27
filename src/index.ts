@@ -73,6 +73,7 @@ function printUsageAndExit(): void {
     console.log("Options:");
     console.log("    -c, --columns       Columns to display");
     console.log("    -h, --help          Print usage");
+    console.log("    -r, --root          Root path in input");
     process.exit(1);
 }
 
@@ -107,6 +108,7 @@ function parseColspec(colspec: string): Column[] {
 async function main(): Promise<void> {
     const argv = process.argv;
     const argc = argv.length;
+    let root: string | null = null;
     let colspec: string | null = null;
     for (let argno = 2; argno < argc; argno++) {
         const name = argv[argno];
@@ -114,6 +116,14 @@ async function main(): Promise<void> {
             case "-h":
             case "--help": {
                 printUsageAndExit();
+                break;
+            }
+            case "-r":
+            case "--root": {
+                argno++;
+                if (argno >= argc)
+                    printUsageAndExit();
+                root = argv[argno];
                 break;
             }
             case "-c":
@@ -132,7 +142,9 @@ async function main(): Promise<void> {
 
 
     const buf = await readDataFromStream(process.stdin);
-    const data = JSON.parse(buf.toString());
+    let data = JSON.parse(buf.toString());
+    if (root !== null)
+        data = getPath(data, root);
 
     if (!(data instanceof Array))
         throw new Error("Expected an array");
