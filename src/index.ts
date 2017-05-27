@@ -62,15 +62,96 @@ function getAllPaths(roots: any[]): string[] {
     }
 }
 
+interface Column {
+    path: string;
+    title: string;
+}
+
+function printUsageAndExit(): void {
+    console.log("Usage: show-json [options]");
+    console.log("");
+    console.log("Options:");
+    console.log("    -c, --columns       Columns to display");
+    console.log("    -h, --help          Print usage");
+    process.exit(1);
+}
+
+function parseColspec(colspec: string): Column[] {
+    const columns: Column[] = [];
+    for (const spec of colspec.split(",").map(s => s.trim())) {
+        let path: string;
+        let title: string;
+
+        const match = spec.match(/^(.*) +as +(.*)$/);
+        if (match) {
+            path = match[1];
+            title = match[2];
+
+            if (title.match(/^"/))
+                title = JSON.parse(title);
+        }
+        else {
+            path = spec;
+            title = spec;
+        }
+
+        const column: Column = {
+            path: path,
+            title: title,
+        };
+        columns.push(column);
+    }
+    return columns;
+}
+
 async function main(): Promise<void> {
+    const argv = process.argv;
+    const argc = argv.length;
+    let colspec: string | null = null;
+    for (let argno = 2; argno < argc; argno++) {
+        const name = argv[argno];
+        switch (name) {
+            case "-h":
+            case "--help": {
+                printUsageAndExit();
+                break;
+            }
+            case "-c":
+            case "--columns": {
+                argno++;
+                if (argno >= argc)
+                    printUsageAndExit();
+                colspec = argv[argno];
+                break;
+            }
+            default:
+                printUsageAndExit();
+                break;
+        }
+    }
+
+
     const buf = await readDataFromStream(process.stdin);
     const data = JSON.parse(buf.toString());
 
     if (!(data instanceof Array))
         throw new Error("Expected an array");
 
-    const fields = getAllPaths(data);
-    console.log(table(fields, makeRows(fields, data)));
+    let columns: Column[];
+    if (colspec !== null) {
+        columns = parseColspec(colspec);
+    }
+    else {
+        const paths = getAllPaths(data);
+        columns = paths.map(p => ({
+            path: p,
+            title: p.toUpperCase(),
+        }));
+    }
+
+    const colPaths = columns.map(c => c.path);
+    const colTitles = columns.map(c => c.title);
+    console.log(table(colTitles, makeRows(colPaths, data)));
 }
 
 // Avoid output truncation
