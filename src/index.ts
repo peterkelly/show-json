@@ -166,13 +166,7 @@ async function main(): Promise<void> {
     console.log(table(colTitles, makeRows(colPaths, data)));
 }
 
-// Avoid output truncation
-(<any> process.stdout)._handle.setBlocking(true);
-(<any> process.stderr)._handle.setBlocking(true);
-
-main().then(() => {
-    process.exit(0);
-}).catch((error) => {
+main().catch((error) => {
     console.error("" + error);
     process.exit(1);
 });
