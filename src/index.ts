@@ -14,6 +14,7 @@
 
 /// <reference types="node" />
 
+import * as fs from "fs";
 import { readDataFromStream } from "./io";
 import { table } from "./table";
 import { isObject } from "./util";
@@ -68,7 +69,7 @@ interface Column {
 }
 
 function printUsageAndExit(): void {
-    console.log("Usage: show-json [options]");
+    console.log("Usage: show-json [options] [filename]");
     console.log("");
     console.log("Options:");
     console.log("    -c, --columns       Columns to display");
@@ -110,6 +111,7 @@ async function main(): Promise<void> {
     const argc = argv.length;
     let root: string | null = null;
     let colspec: string | null = null;
+    let filename: string | null = null;
     for (let argno = 2; argno < argc; argno++) {
         const name = argv[argno];
         switch (name) {
@@ -135,14 +137,22 @@ async function main(): Promise<void> {
                 break;
             }
             default:
-                printUsageAndExit();
+                if (filename === null)
+                    filename = argv[argno];
+                else
+                    printUsageAndExit();
                 break;
         }
     }
 
-
-    const buf = await readDataFromStream(process.stdin);
-    let data = JSON.parse(buf.toString());
+    let data;
+    if (filename !== null) {
+        const input = fs.readFileSync(filename, { encoding: "utf-8" });
+        data = JSON.parse(input);
+    } else {
+        const buf = await readDataFromStream(process.stdin);
+        data = JSON.parse(buf.toString());
+    }
     if (root !== null)
         data = getPath(data, root);
 
