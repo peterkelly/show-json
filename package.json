@@ -6,6 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "show-json": "cli.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/peterkelly/show-json.git"
