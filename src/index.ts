@@ -157,7 +157,7 @@ async function main(): Promise<void> {
         const paths = getAllPaths(data);
         columns = paths.map(p => ({
             path: p,
-            title: p.toUpperCase(),
+            title: p,
         }));
     }
 
